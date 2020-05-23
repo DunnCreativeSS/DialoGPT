@@ -527,9 +527,11 @@ def save_convo(path_rs, path_rc, path_out):
         
 
         skip_id = {}
+        jareprint('sorted: ' + str(sorted_id))
         if args.leaves_only:
             for _, pid, _ in sorted_id:
                 skip_id[pid] = 1
+        jareprint('sorted: ' + str(sorted_id))
 
         for sid, pid, cid in sorted_id:
             if args.keep_keys:
@@ -546,46 +548,46 @@ def save_convo(path_rs, path_rc, path_out):
             if sid in submissions.keys():
                 subreddit = submissions[sid]['permalink'].split('/')[2].lower()
                 domain = submissions[sid]['domain'].lower()
-            if subreddit in wl_subreddits:
-                info = subreddit + '\t' + domain
+            info = subreddit + '\t' + domain
 
-               
-                comment = comments[cid]
+           
+            comment = comments[cid]
 
 
-                try:
-                    txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
-                except Exception:
-                    jareprint("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-                    
-                if len(txts) < 3: # filter 3
-                    jareprint("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
-                    
-
-                for i in range(len(txts)):
-                    txts[i] = norm_sentence(txts[i], False)
-                    if args.leaves_only and args.clean:
-                        sc = '1.0'
-                        skip_target = False
-                        if args.discard_tgt_keys:
-                            tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
-                            if tgt_h in keys_rm.keys():
-                                skip_target = True
-                        if bl_words.extract_keywords(txts[i]) or skip_target:
-                            sc = '0.0'
-                        txts[i] = sc + ' ' + txts[i]
-
-                src = ' EOS '.join(txts[:-1])
-                tgt = txts[-1]
-
+            try:
+                txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
+            except Exception:
+                jareprint("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
+                
+            if len(txts) < 3: # filter 3
+                jareprint("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
                 
 
-                header = ','.join([sid, pid, cid])
-                lines.append(header + '\t' + src + '\t' + tgt)
-                sum_resp_len += len(tgt.split())
-                m += 1
-                        
-                        
+            for i in range(len(txts)):
+                txts[i] = norm_sentence(txts[i], False)
+                if args.leaves_only and args.clean:
+                    sc = '1.0'
+                    skip_target = False
+                    if args.discard_tgt_keys:
+                        tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
+                        if tgt_h in keys_rm.keys():
+                            skip_target = True
+                    if bl_words.extract_keywords(txts[i]) or skip_target:
+                        sc = '0.0'
+                    txts[i] = sc + ' ' + txts[i]
+
+            src = ' EOS '.join(txts[:-1])
+            tgt = txts[-1]
+
+            
+
+            header = ','.join([sid, pid, cid])
+            jareprint('header: ' + str(header))
+            lines.append(header + '\t' + src + '\t' + tgt)
+            sum_resp_len += len(tgt.split())
+            m += 1
+                    
+                    
                 
 
                 
