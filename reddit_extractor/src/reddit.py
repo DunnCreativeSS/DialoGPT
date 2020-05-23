@@ -418,13 +418,13 @@ pac = get_pac(url='http://localhost/proxies.PAC')
 session = PACSession(pac)
 blocked = []
 def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
-    jareprint("https://api.pushshift.io/reddit/search/submission/?subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1")
+    jareprint("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1")
                 
     try:
         if ts != 0:
-            resp = session.get("https://api.pushshift.io/reddit/search/submission/?subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
+            resp = session.get("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
         else:
-            resp = session.get("https://api.pushshift.io/reddit/search/submission/?subreddit=" + lala + "&size=500&before=" + str(ts2) + "&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
+            resp = session.get("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
         
         jareprint(resp)
         if '200' in str(resp): 
@@ -521,7 +521,7 @@ def save_convo(path_rs, path_rc, path_out):
                         cid
                         ) for cid in comments])
 
-        n = len(comments)
+        
         jareprint('total comments: %i'%n)
 
         
@@ -591,7 +591,7 @@ def save_convo(path_rs, path_rc, path_out):
                 
 
                 
-
+    n = len(comments)
     avg_len = sum_resp_len/(m+1)
     with open(path_out, 'a', encoding="utf-8") as f:
         f.write('\n'.join(lines) + '\n')
