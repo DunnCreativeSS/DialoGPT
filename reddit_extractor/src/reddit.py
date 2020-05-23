@@ -312,22 +312,56 @@ import requests
 from time import sleep
 import random
 def getthecomments(lala, submission, index):
-    print("https://api.pushshift.io/reddit/search/comment/?subreddit=" + lala + "&size=500&parent_id="+submission['id'])
+    
+    jareprint("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
     try:    
-        resp = session.get("https://api.pushshift.io/reddit/search/comment/?subreddit=" + lala + "&size=500&parent_id="+submission['id'])
-        jareprint(resp)
-        if '200' in str(resp):
+        resp0 = session.get("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
+        jareprint(resp0)
+        if '200' in str(resp0):
             sleep(random.randint(0, 3))
             comments = []
             try:
-                resp = resp.json()['data']
-                for line in resp:
-                
-                    comment = line
-                    if index == 1:
-                        jareprint(comment)
-                    comments.append(comment)
-                return(comments)
+                resp0 = resp0.json()['data']
+                ids = ""
+                for line in resp0:
+                    ids = ids + "," + line
+                print("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
+                try:
+                    resp = session.get("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
+                    jareprint(resp)
+                    if '200' in str(resp):
+                        sleep(random.randint(0, 3))
+                        comments = []
+                        try:
+                            resp = resp.json()['data']
+                            for line in resp:
+                            
+                                comment = line
+                                if index == 1:
+                                    jareprint(comment)
+                                comments.append(comment)
+                            return(comments)
+                        except Exception as e:
+                            jareprint(e)
+                            if '429' not in str(resp) and '502' not in str(resp):
+                                blocked.append(lala)
+                                going = False
+                            else:
+                                time.sleep(random.randint(1,5))
+                                return getthecomments(lala, submission, index)
+                            traceback.print_exc()
+                    else:
+                        time.sleep(random.randint(1,5))
+                        return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+                except Exception as e:
+                    jareprint(e)
+                    if '429' not in str(resp) and '502' not in str(resp):
+                        blocked.append(lala)
+                        going = False
+                    else:
+                        time.sleep(random.randint(1,5))
+                        return getthecomments(lala, submission, index)
+                    traceback.print_exc()
             except Exception as e:
                 jareprint(e)
                 if '429' not in str(resp) and '502' not in str(resp):
@@ -337,7 +371,9 @@ def getthecomments(lala, submission, index):
                     time.sleep(random.randint(1,5))
                     return getthecomments(lala, submission, index)
                 traceback.print_exc()
-                
+        else:
+            time.sleep(random.randint(1,5))
+            return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
     except Exception as e:
         jareprint(e)
         traceback.print_exc()
@@ -388,6 +424,9 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
                     time.sleep(random.randint(1,5))
                     return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
                 traceback.print_exc()
+        else:
+            time.sleep(random.randint(1,5))
+            return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
     except Exception as e:
         if '429' not in str(e) and '502' not in str(e) and 'proxy' not in str(e) and 'timed out' not in str(e):
             blocked.append(lala)
