@@ -137,7 +137,7 @@ host = finalProxies[Math.floor((Math.random() * finalProxies.length))]
                         proto = 'HTTPS'
                 }
                 host = host.split('://')[1]
-text+= '\nreturn "' + proto + ' ' + host + '";" }' // DIRECT makes the browser use no proxy if the chosen proxy doesn't work
+text+= '\nreturn "' + proto + ' ' + host + ';" }' // DIRECT makes the browser use no proxy if the chosen proxy doesn't work
 
 
 		fs.writeFileSync('/var/www/html/proxies.PAC',text,{encoding:'utf8',flag:'w'})
