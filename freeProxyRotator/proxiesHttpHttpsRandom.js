@@ -120,14 +120,23 @@ setInterval(function(){
 	if (goagain == true){
 		goagain = false
 		var text = 'var hosts="' 
+		proto 
 		for (var p in finalProxies){
-			text+= finalProxies[p].split('://')[1] + " "
+			text+= finalProxies[p] + " "
 		}
 		text += '"\nfunction FindProxyForURL(url, host){'
 
-		text += '\nvar hostsArray = hosts.split(" ");'
+		text += '\nvar hostsArray = hosts.split(" ").split("://")[1];'
 		text+= '\nvar randomIndex = Math.floor((Math.random() * hostsArray.length));'
-		text+= '\nreturn "PROXY " + hostsArray[randomIndex] + ";" }' // DIRECT makes the browser use no proxy if the chosen proxy doesn't work
+		host = finalProxies[Math.floor((Math.random() * hostsArray.length))]
+		if (host.split('://')[0] == 'http'){
+			proto = 'PROXY'
+		}
+		else if (host.split('://')[0] == 'http'){
+                        proto = 'HTTPS'
+                }
+                host = host.split('://')[1]
+text+= '\nreturn "' + proto + ' ' + host + '";" }' // DIRECT makes the browser use no proxy if the chosen proxy doesn't work
 
 
 		fs.writeFileSync('/var/www/html/proxies.PAC',text,{encoding:'utf8',flag:'w'})
