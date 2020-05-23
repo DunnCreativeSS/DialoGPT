@@ -612,7 +612,7 @@ fld_root_out = args.reddit_output
 fld_split = fld_root_out + '/extract/%s'%(args.dump_name)
 
 if args.task == 'extract':
-    abc=123#extract()
+    extract()
 elif args.task == 'conv':
     fld_out = fld_root_out + '/conv'
     build_conv(fld_out)
