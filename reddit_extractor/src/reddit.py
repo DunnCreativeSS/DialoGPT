@@ -370,7 +370,6 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
                     ts2o = ts2   
                  
                     ts2 = submission['created_utc']
-                    jareprint(ts2)
                     ts = 0
                     if ts2 > ts2o or ts2 < ts:
                         going = False
@@ -435,7 +434,7 @@ def save_convo(path_rs, path_rc, path_out):
             if lala not in blocked:
                 
                 sleep(random.randint(0, 3))
-                subresult = dogetsubmissions(ts, lala, ts2, going, [], [], index)  
+                subresult = dogetsubmissions(ts, lala, ts2, going, dict(), dict(), index)  
                 print(subresult)
                 going = subresult['going']
                 submissions = subresult['submissions']
