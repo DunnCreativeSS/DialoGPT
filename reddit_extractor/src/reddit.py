@@ -275,13 +275,13 @@ def filter_instance(src, tgt, info):
     if args.bl_words and not args.leaves_only:
         bad_words = bl_words.extract_keywords(tgt)
         if bad_words:
-            jareprint("skip\toffensive\t%s\t%s\tbad word(s): %s" % (info, tgt, bad_words), file=sys.stderr)
+            print("skip\toffensive\t%s\t%s\tbad word(s): %s" % (info, tgt, bad_words), file=sys.stderr)
             return True
 
     # Remove empty targets:
     tgttoks = tgt.split()
     if len(tgttoks) <= 1: # 1 means there is only a weight, and 0 means there's a bug..
-        jareprint("skip\temptytarget\t%s\t%s" % (info, tgt), file=sys.stderr)
+        print("skip\temptytarget\t%s\t%s" % (info, tgt), file=sys.stderr)
         return True
 
     # Skip if word too long:
@@ -291,7 +291,7 @@ def filter_instance(src, tgt, info):
             toolong = True
             break
     if toolong:
-        jareprint("skip\tlongword\t%s\t%s\tword too long" % (info, tgt), file=sys.stderr)
+        print("skip\tlongword\t%s\t%s\tword too long" % (info, tgt), file=sys.stderr)
         return True
 
     srctoks = src.split()
@@ -303,23 +303,23 @@ def filter_instance(src, tgt, info):
     # Remove too long turns:
     nsrctgt = len(srctoks) + len(tgttoks)
     if nsrctgt > 200:
-        jareprint("skip\ttoolong\t%s\t%s\tsrc+tgt too long, src=[%s]" % (info, tgt, src), file=sys.stderr)
+        print("skip\ttoolong\t%s\t%s\tsrc+tgt too long, src=[%s]" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip turns with URLs:
     srctgt = src + " " + tgt
     if "__url__" in srctgt:
-        jareprint("skip\turl\t%s\t%s\turl in tgt, or src =[%s]" % (info, tgt, src), file=sys.stderr)
+        print("skip\turl\t%s\t%s\turl in tgt, or src =[%s]" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip responses with meta data:
     if re.search("[\[\]\(\)]", srctgt) != None:
-        jareprint("skip\ttags\t%s\t%s\ttag in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
+        print("skip\ttags\t%s\t%s\ttag in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip yelling:
     if re.search("[A-Z]{5,}", srctgt) != None:
-        jareprint("skip\tallcaps\t%s\t%s\tall caps in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
+        print("skip\tallcaps\t%s\t%s\tall caps in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip word repetitions:
@@ -329,7 +329,7 @@ def filter_instance(src, tgt, info):
             reps = True
             break
     if reps:
-        jareprint("skip\trepetitions\t%s\t%s\ttoo many repetitions" % (info, tgt), file=sys.stderr)
+        print("skip\trepetitions\t%s\t%s\ttoo many repetitions" % (info, tgt), file=sys.stderr)
         return True
 
     return False
@@ -540,7 +540,7 @@ def save_convo(path_rs, path_rc, path_out):
             
             i += 1
             if i%1e5 == 0:
-                jareprint('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
+                print('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
                 
 
             subreddit = ''
@@ -557,10 +557,10 @@ def save_convo(path_rs, path_rc, path_out):
             try:
                 txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
             except Exception:
-                jareprint("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
+                print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
                 
             if len(txts) < 3: # filter 3
-                jareprint("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
+                print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
                 
 
             for i in range(len(txts)):
@@ -692,4 +692,4 @@ elif args.task == 'conv':
     fld_out = fld_root_out + '/conv'
     build_conv(fld_out)
 else:
-    jareprint("Unknown task: %s" % args.task, file=sys.stderr)
+    print("Unknown task: %s" % args.task, file=sys.stderr)
