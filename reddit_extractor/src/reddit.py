@@ -538,11 +538,8 @@ def save_convo(path_rs, path_rc, path_out):
             
             i += 1
             if i%1e5 == 0:
-                jareprint('selected %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
-                if len(lines) > 0:
-                    with open(path_out, 'a', encoding="utf-8") as f:
-                        f.write('\n'.join(lines) + '\n')
-                lines = []
+                jareprint('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
+                
 
             subreddit = ''
             domain = ''
