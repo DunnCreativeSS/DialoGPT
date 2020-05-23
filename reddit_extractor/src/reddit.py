@@ -66,8 +66,9 @@ keys = {}
 keys_rm = {}
 
 def jareprint(string):
-    with open(fld_out + '/%s.tsv.gz.logtemp'%args.dump_name, 'a', encoding="utf-8") as f:
-        f.write(str(string) + '\n')
+    if fld_out is not None:
+        with open(fld_out + '/%s.tsv.gz.logtemp'%args.dump_name, 'a', encoding="utf-8") as f:
+            f.write(str(string) + '\n')
     print(string)
 def get_submission_id(submission):
     return TAG_SUBMISSION + submission["id"]
@@ -610,7 +611,7 @@ else:
 fld_root_in = args.reddit_input
 fld_root_out = args.reddit_output
 fld_split = fld_root_out + '/extract/%s'%(args.dump_name)
-
+fld_out = None
 if args.task == 'extract':
     extract()
 elif args.task == 'conv':
