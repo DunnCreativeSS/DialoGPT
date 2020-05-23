@@ -354,7 +354,7 @@ def getthecomments(lala, submission, index):
                             traceback.print_exc()
                     else:
                         time.sleep(random.randint(1,5))
-                        return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+                        return getthecomments(lala, submission, index)
                 except Exception as e:
                     jareprint(e)
                     if '429' not in str(resp) and '502' not in str(resp):
@@ -375,7 +375,7 @@ def getthecomments(lala, submission, index):
                 traceback.print_exc()
         else:
             time.sleep(random.randint(1,5))
-            return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+            return getthecomments(lala, submission, index)
     except Exception as e:
         jareprint(e)
         traceback.print_exc()
