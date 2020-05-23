@@ -128,7 +128,8 @@ setInterval(function(){
 
 		text += '\nvar hostsArray = hosts.split(" ").split("://")[1];'
 		text+= '\nvar randomIndex = Math.floor((Math.random() * hostsArray.length));'
-		host = finalProxies[Math.floor((Math.random() * finalProxies.length))]
+if (finalProxies.length>0){		
+host = finalProxies[Math.floor((Math.random() * finalProxies.length))]
 		if (host.split('://')[0] == 'http'){
 			proto = 'PROXY'
 		}
@@ -140,6 +141,7 @@ text+= '\nreturn "' + proto + ' ' + host + '";" }' // DIRECT makes the browser u
 
 
 		fs.writeFileSync('/var/www/html/proxies.PAC',text,{encoding:'utf8',flag:'w'})
-		goagain = true
+}		
+goagain = true
 	}
    	}, 1000)
