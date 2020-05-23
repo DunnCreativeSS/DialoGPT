@@ -367,8 +367,10 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
                     submission = line
                     if index == 1:
                         jareprint(submission)
-                    ts2o = ts2
+                    ts2o = ts2   
+                 
                     ts2 = submission['created_utc']
+                    jareprint(ts2)
                     ts = 0
                     if ts2 > ts2o or ts2 < ts:
                         going = False
