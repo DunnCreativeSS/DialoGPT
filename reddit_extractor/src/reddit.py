@@ -175,7 +175,7 @@ def extract_comments(fld_bz2, fld_split, sids):
     for sub in range(n_sub):
         open(fld_split + '/rc_sub%i.tsv'%sub, 'w')
 
-    with open(path_in, 'rt', encoding="utf-8") as f:
+    with  open(path_in, 'rt', encoding="utf-8") as f:
         for line in f:
             n += 1
             if n%1e4 == 0:
