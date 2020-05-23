@@ -340,7 +340,7 @@ import requests
 from time import sleep
 import random
 def getthecomments(lala, submission, index):
-    
+    comments = []
     jareprint("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
     try:    
         resp0 = session.get("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
@@ -352,16 +352,14 @@ def getthecomments(lala, submission, index):
                 resp0 = resp0.json()['data']
                 ids = ""
                 for line in resp0:
-                    ids = ids + "," + line
-                if ids == "":
-                    return []
+                    ids = ids + "," + line                                                                                                                                   
                 print("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
                 try:
                     resp = session.get("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
                     jareprint(resp)
                     if '200' in str(resp):
                         sleep(random.randint(0, 3))
-                        comments = []
+                        
                         try:
                             resp = resp.json()['data']
                             for line in resp:
@@ -413,7 +411,7 @@ def getthecomments(lala, submission, index):
             return getthecomments(lala, submission, index)
         traceback.print_exc()
         traceback.print_exc()
-        
+    return(comments)    
 
 from pypac import PACSession, get_pac
 pac = get_pac(url='http://localhost/proxies.PAC')
