@@ -345,7 +345,7 @@ def getthecomments(lala, submission, index):
                             return(comments)
                         except Exception as e:
                             jareprint(e)
-                            if '429' not in str(resp) and '502' not in str(resp):
+                            if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
                                 blocked.append(lala)
                                 going = False
                             else:
@@ -357,7 +357,7 @@ def getthecomments(lala, submission, index):
                         return getthecomments(lala, submission, index)
                 except Exception as e:
                     jareprint(e)
-                    if '429' not in str(resp) and '502' not in str(resp):
+                    if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
                         blocked.append(lala)
                         going = False
                     else:
@@ -366,7 +366,7 @@ def getthecomments(lala, submission, index):
                     traceback.print_exc()
             except Exception as e:
                 jareprint(e)
-                if '429' not in str(resp) and '502' not in str(resp):
+                if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
                     blocked.append(lala)
                     going = False
                 else:
@@ -377,7 +377,13 @@ def getthecomments(lala, submission, index):
             time.sleep(random.randint(1,5))
             return getthecomments(lala, submission, index)
     except Exception as e:
-        jareprint(e)
+        if '429' not in str(e) and '502' not in str(e) and 'proxy' not in str(e) and 'timed out' not in str(e):
+            blocked.append(lala)
+            going = False
+        else:
+            time.sleep(random.randint(1,5))
+            return getthecomments(lala, submission, index)
+        traceback.print_exc()
         traceback.print_exc()
         
 
