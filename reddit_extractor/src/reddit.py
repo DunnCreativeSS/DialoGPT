@@ -325,6 +325,8 @@ def getthecomments(lala, submission, index):
                 ids = ""
                 for line in resp0:
                     ids = ids + "," + line
+                if ids = "":
+                    return []
                 print("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
                 try:
                     resp = session.get("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
@@ -421,6 +423,7 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
                     going = False
                     jareprint(e)
                 else:
+                    
                     time.sleep(random.randint(1,5))
                     return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
                 traceback.print_exc()
