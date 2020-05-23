@@ -128,7 +128,7 @@ setInterval(function(){
 
 		text += '\nvar hostsArray = hosts.split(" ").split("://")[1];'
 		text+= '\nvar randomIndex = Math.floor((Math.random() * hostsArray.length));'
-		host = finalProxies[Math.floor((Math.random() * hostsArray.length))]
+		host = finalProxies[Math.floor((Math.random() * finalProxies.length))]
 		if (host.split('://')[0] == 'http'){
 			proto = 'PROXY'
 		}
