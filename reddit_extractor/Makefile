@@ -40,14 +40,14 @@ $T/train/$A/%.tsv.gz: $T/train/$P/%/stat.tsv
 $T/test/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 	mkdir -p $T/test/$P/$(*F)
 	python src/reddit.py $(*F) --keep_keys=data/keys-test.gz --task=extract --reddit_input $S --reddit_output $T/test > $@.log 2>&1
-	#gzip -f $T/test/$P/$(*F)/rc*.tsv
-	#gzip -f $T/test/$P/$(*F)/rs*.tsv
+	gzip -f $T/test/$P/$(*F)/rc*.tsv
+	gzip -f $T/test/$P/$(*F)/rs*.tsv
 
 $T/train/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 	mkdir -p $T/train/$P/$(*F)
 	python src/reddit.py $(*F) --keep_keys=$K/$(*F).gz --task=extract --reddit_input $S --reddit_output $T/train > $@.log 2>&1
-	#gzip -f $T/train/$P/$(*F)/rc*.tsv
-	#gzip -f $T/train/$P/$(*F)/rs*.tsv
+	gzip -f $T/train/$P/$(*F)/rc*.tsv
+	gzip -f $T/train/$P/$(*F)/rs*.tsv
 
 #### Download Reddit dumps:
 
