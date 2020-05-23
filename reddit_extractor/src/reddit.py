@@ -251,9 +251,13 @@ def extract_comments(fld_bz2, fld_split, sids):
 
 
 def get_convo(sid, rootid, cid, submissions, comments, index, depth=args.max_depth):
-
+    if depth == 0:
+        return []
     c = comments[cid]
-
+    if args.max_len_type == 'w' and len(c['body'].split()) > args.max_len: # len filter
+        return []
+    if args.max_len_type == 'c' and int(c['n_char']) > args.max_len:
+        return []
 
     pid = c['parent_id']
     if args.use_title and pid.startswith(TAG_SUBMISSION):
@@ -552,37 +556,37 @@ def save_convo(path_rs, path_rc, path_out):
 
             try:
                 txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
+                
+                if len(txts) < 3: # filter 3
+                    print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
+                    
+
+                for i in range(len(txts)):
+                    txts[i] = norm_sentence(txts[i], False)
+                    if args.leaves_only and args.clean:
+                        sc = '1.0'
+                        skip_target = False
+                        if args.discard_tgt_keys:
+                            tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
+                            if tgt_h in keys_rm.keys():
+                                skip_target = True
+                        if bl_words.extract_keywords(txts[i]) or skip_target:
+                            sc = '0.0'
+                        txts[i] = sc + ' ' + txts[i]
+
+                src = ' EOS '.join(txts[:-1])
+                tgt = txts[-1]
+
+                
+
+                header = ','.join([sid, pid, cid])
+                jareprint('header: ' + str(header))
+                lines.append(header + '\t' + src + '\t' + tgt)
+                sum_resp_len += len(tgt.split())
+                m += 1
             except Exception:
                 print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-                
-            if len(txts) < 3: # filter 3
-                print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
-                
-
-            for i in range(len(txts)):
-                txts[i] = norm_sentence(txts[i], False)
-                if args.leaves_only and args.clean:
-                    sc = '1.0'
-                    skip_target = False
-                    if args.discard_tgt_keys:
-                        tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
-                        if tgt_h in keys_rm.keys():
-                            skip_target = True
-                    if bl_words.extract_keywords(txts[i]) or skip_target:
-                        sc = '0.0'
-                    txts[i] = sc + ' ' + txts[i]
-
-            src = ' EOS '.join(txts[:-1])
-            tgt = txts[-1]
-
-            
-
-            header = ','.join([sid, pid, cid])
-            jareprint('header: ' + str(header))
-            lines.append(header + '\t' + src + '\t' + tgt)
-            sum_resp_len += len(tgt.split())
-            m += 1
-                    
+                        
                     
                 
 
