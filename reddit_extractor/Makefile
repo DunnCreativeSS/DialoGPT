@@ -40,40 +40,40 @@ $T/train/$A/%.tsv.gz: $T/train/$P/%/stat.tsv
 $T/test/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 	mkdir -p $T/test/$P/$(*F)
 	python src/reddit.py $(*F) --keep_keys=data/keys-test.gz --task=extract --reddit_input $S --reddit_output $T/test > $@.log 2>&1
-	#gzip -f $T/test/$P/$(*F)/rc*.tsv
-	#gzip -f $T/test/$P/$(*F)/rs*.tsv
+	gzip -f $T/test/$P/$(*F)/rc*.tsv
+	gzip -f $T/test/$P/$(*F)/rs*.tsv
 
 $T/train/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 	mkdir -p $T/train/$P/$(*F)
 	python src/reddit.py $(*F) --keep_keys=$K/$(*F).gz --task=extract --reddit_input $S --reddit_output $T/train > $@.log 2>&1
-	#gzip -f $T/train/$P/$(*F)/rc*.tsv
-	#gzip -f $T/train/$P/$(*F)/rs*.tsv
+	gzip -f $T/train/$P/$(*F)/rc*.tsv
+	gzip -f $T/train/$P/$(*F)/rs*.tsv
 
 #### Download Reddit dumps:
 
 $S/RS_%.bz2: lists/files/RS_v2_%.xz
-	touch $S/RS_v2_$(*F).xz 
+	wget $U/submissions/RS_v2_$(*F).xz -O $S/RS_v2_$(*F).xz -o logs/RS_v2_$(*F).xz.log -c
 	xzcat $S/RS_v2_$(*F).xz | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.xz
-	touch  $S/RS_$(*F).xz
+	wget $U/submissions/RS_$(*F).xz -O $S/RS_$(*F).xz -o logs/RS_$(*F).xz.log -c
 	xzcat $S/RS_$(*F).xz | bzip2 > $@
 $S/RC_%.bz2: lists/files/RC_%.xz
-	touch $S/RC_$(*F).xz 
+	wget $U/comments/RC_$(*F).xz -O $S/RC_$(*F).xz -o logs/RC_$(*F).xz.log -c
 	xzcat $S/RC_$(*F).xz | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.zst
-	touch  $S/RS_$(*F).zst
+	wget $U/submissions/RS_$(*F).zst -O $S/RS_$(*F).zst -o logs/RS_$(*F).zst.log -c
 	zstdcat $S/RS_$(*F).zst | bzip2 > $@
 $S/RC_%.bz2: lists/files/RC_%.zst 
-	touch $S/RC_$(*F).zst 
+	wget $U/comments/RC_$(*F).zst -O $S/RC_$(*F).zst -o logs/RC_$(*F).zst.log -c
 	zstdcat $S/RC_$(*F).zst | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.bz2
-	touch  $S/RS_$(*F).bz2 =
+	wget $U/submissions/RS_$(*F).bz2 -O $S/RS_$(*F).bz2 -o logs/RS_$(*F).bz2.log -c
 	touch $@
 $S/RC_%.bz2: lists/files/RC_%.bz2
-	touch $S/RC_$(*F).bz2
+	wget $U/comments/RC_$(*F).bz2 -O $S/RC_$(*F).bz2 -o logs/RC_$(*F).bz2.log -c
 	touch $@
 
 #### Extraction preparation:
