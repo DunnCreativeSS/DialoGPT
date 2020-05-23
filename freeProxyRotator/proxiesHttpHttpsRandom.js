@@ -120,7 +120,7 @@ setInterval(function(){
 	if (goagain == true){
 		goagain = false
 		var text = 'var hosts="' 
-		proto 
+		
 		for (var p in finalProxies){
 			text+= finalProxies[p] + " "
 		}
