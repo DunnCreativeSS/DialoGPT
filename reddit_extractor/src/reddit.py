@@ -251,13 +251,9 @@ def extract_comments(fld_bz2, fld_split, sids):
 
 
 def get_convo(sid, rootid, cid, submissions, comments, index, depth=args.max_depth):
-    if depth == 0:
-        return []
+
     c = comments[cid]
-    if args.max_len_type == 'w' and len(c['body'].split()) > args.max_len: # len filter
-        return []
-    if args.max_len_type == 'c' and int(c['n_char']) > args.max_len:
-        return []
+
 
     pid = c['parent_id']
     if args.use_title and pid.startswith(TAG_SUBMISSION):
