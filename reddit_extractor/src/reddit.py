@@ -130,7 +130,7 @@ def extract_submissions(fld_bz2, fld_split, size=2e5):
     sid = []
     sids = []
     lines = []
-    with bz2.open(path_in, 'rt', encoding="utf-8") as f:
+    with open(path_in, 'rt', encoding="utf-8") as f:
         for line in f:
             n += 1
             if n%1e4 == 0:
