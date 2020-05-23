@@ -325,7 +325,7 @@ def getthecomments(lala, submission, index):
                 ids = ""
                 for line in resp0:
                     ids = ids + "," + line
-                if ids = "":
+                if ids == "":
                     return []
                 print("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
                 try:
