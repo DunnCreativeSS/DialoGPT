@@ -131,33 +131,61 @@ def extract_submissions(fld_bz2, fld_split, size=2e5):
     sids = []
     lines = []
     with bz2.open(path_in, 'rt', encoding="utf-8") as f:
-        for line in f:
-            n += 1
-            if n%1e4 == 0:
-                jareprint('[%s] selected %.3fM from %.2fM submissions'%(
-                    args.dump_name, m/1e6, n/1e6))
-            try:
-                submission = json.loads(line)
-                if int(submission['num_comments']) < 2: # filter 1
+        try:
+            for line in f:
+                n += 1
+                if n%1e4 == 0:
+                    jareprint('[%s] selected %.3fM from %.2fM submissions'%(
+                        args.dump_name, m/1e6, n/1e6))
+                try:
+                    submission = json.loads(line)
+                    if int(submission['num_comments']) < 2: # filter 1
+                        continue
+                    submission['title'] = norm_sentence(submission['title'], True)
+                    lines.append('\t'.join([str(submission[k]) for k in fields_subm]))
+                    m += 1
+                    sid.append(get_submission_id(submission))
+
+                except Exception:
+                    traceback.print_exc()
                     continue
-                submission['title'] = norm_sentence(submission['title'], True)
-                lines.append('\t'.join([str(submission[k]) for k in fields_subm]))
-                m += 1
-                sid.append(get_submission_id(submission))
 
-            except Exception:
-                traceback.print_exc()
-                continue
+                if len(sid) == size:
+                    jareprint('writing submissions_sub%i'%sub)
+                    sids.append(set(sid))
+                    with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
+                        f.write('\n'.join(lines))
+                    sid = []
+                    lines = []
+                    sub += 1
+        except: 
+            with open(path_in, 'rt', encoding="utf-8") as f:
+                for line in f:
+                    n += 1
+                    if n%1e4 == 0:
+                        jareprint('[%s] selected %.3fM from %.2fM submissions'%(
+                            args.dump_name, m/1e6, n/1e6))
+                    try:
+                        submission = json.loads(line)
+                        if int(submission['num_comments']) < 2: # filter 1
+                            continue
+                        submission['title'] = norm_sentence(submission['title'], True)
+                        lines.append('\t'.join([str(submission[k]) for k in fields_subm]))
+                        m += 1
+                        sid.append(get_submission_id(submission))
 
-            if len(sid) == size:
-                jareprint('writing submissions_sub%i'%sub)
-                sids.append(set(sid))
-                with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
-                    f.write('\n'.join(lines))
-                sid = []
-                lines = []
-                sub += 1
+                    except Exception:
+                        traceback.print_exc()
+                        continue
 
+                    if len(sid) == size:
+                        jareprint('writing submissions_sub%i'%sub)
+                        sids.append(set(sid))
+                        with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
+                            f.write('\n'.join(lines))
+                        sid = []
+                        lines = []
+                        sub += 1
     jareprint('writing submissions_sub%i'%sub)
     sids.append(set(sid))
     with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
