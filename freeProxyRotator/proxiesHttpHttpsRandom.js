@@ -43,7 +43,7 @@ gettingProxies.on('error', function(error) {
  //   console.error(error);
 });
  
-gettingProxies.once('end', function() {
+setTimeout( function() {
 	console.log('done')
 	tempProxies = initialProxies
 	initialProxies = []
@@ -66,7 +66,7 @@ gettingProxies.once('end', function() {
     setTimeout(function(){
     	getProxies()
     }, tempProxies.length * 3000)
-});
+}, 30000);
 
 }
 function testProxy(options, l, proxy, count){
