@@ -407,7 +407,7 @@ def getthecomments(lala, submission, index):
             blocked.append(lala)
             going = False
         else:
-            time.sleep(random.randint(1,5))
+            time.sleep(random.randint(10,15))
             return getthecomments(lala, submission, index)
         traceback.print_exc()
         traceback.print_exc()
@@ -468,7 +468,7 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
             going = False
             jareprint(e)
         else:
-            time.sleep(random.randint(1,5))
+            time.sleep(random.randint(10,15))
             return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
