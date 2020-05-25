@@ -571,6 +571,11 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
     tdc = tdc + 1
 comments = dict()
 submissions = dict()
+from multiprocessing.pool import ThreadPool as Pool
+# from multiprocessing import Pool
+
+pool_size = 8  # your "parallelness"
+
 def save_convo(path_rs, path_rc, path_out):
     jareprint('reading submissions...')
     path_out = fld_out + '/%s.tsv'%args.dump_name
@@ -594,24 +599,21 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
-    threads = []
+    pool = Pool(pool_size)
     for lala in wl_subreddits:
-        threads.append(_thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))              ) 
+        
 
-    print(threads)
-    done = False
-    while done == False:
-        for thread in threads:
-            if thread.isAlive() == False:
-                done = True
-        time.sleep(30)
-        if done == True:
-            n = len(comments)
-            avg_len = sum_resp_len/(m+1)
-            with open(path_out, 'a', encoding="utf-8") as f:
-                f.write('\n'.join(lines) + '\n')
-            jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
-            return m, n, avg_len
+        pool.apply_async(dolala, (lala,))
+
+    pool.close()
+    pool.join()
+
+    n = len(comments)
+    avg_len = sum_resp_len/(m+1)
+    with open(path_out, 'a', encoding="utf-8") as f:
+        f.write('\n'.join(lines) + '\n')
+    jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
+    return m, n, avg_len
 
 
 def extract():
