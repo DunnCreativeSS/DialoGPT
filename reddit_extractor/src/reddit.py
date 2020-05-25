@@ -412,7 +412,7 @@ def getthecomments(lala, submission, index):
         traceback.print_exc()
         traceback.print_exc()
     return(comments)    
-import thread
+import _thread
 import time
                                                                                                                                
 from pypac import PACSession, get_pac
@@ -596,7 +596,7 @@ def save_convo(path_rs, path_rc, path_out):
     sum_resp_len = 0
     tdc = 0
     for lala in wl_subreddits:
-        thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))               
+        _thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))               
         threadDones[tdc] = False
         tcd = tcd + 1
     tdc = 0
