@@ -476,7 +476,6 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
             
-threadDones = {}
 def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,):
     jareprint(index)
     index = index + 1
@@ -595,18 +594,16 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
+    threads = []
     for lala in wl_subreddits:
-        _thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))               
-        threadDones[tdc] = False
-        tdc = tdc + 1
-    tdc = 0
+        threads.append(_thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,tdc,))              ) 
+
         
     done = False
     while done == False:
-        for done in threadDones:
-            if done == True:
+        for t in threads:
+            if t.isAlive() == False:
                 done = True
-        jareprint(threadDones)
         time.sleep(30)
         if done == True:
             n = len(comments)
