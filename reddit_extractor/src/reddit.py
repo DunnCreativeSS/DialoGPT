@@ -571,6 +571,8 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
     tdc = tdc + 1
 comments = dict()
 submissions = dict()
+from threading import Thread
+import subprocess
 def save_convo(path_rs, path_rc, path_out):
     jareprint('reading submissions...')
     path_out = fld_out + '/%s.tsv'%args.dump_name
@@ -596,7 +598,7 @@ def save_convo(path_rs, path_rc, path_out):
     tdc = 0
     threads = []
     for lala in wl_subreddits:
-        threads.append(_thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))              ) 
+        threads.append(Thread(target=dolala, args=(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))) 
 
     for x in threads:
         x.join()        
