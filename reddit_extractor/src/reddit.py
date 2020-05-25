@@ -21,6 +21,7 @@ def makedirs(fld):
     if not os.path.exists(fld):
         os.makedirs(fld)
 
+tdc = 0
 PICKLE_MAX_LEN = 1e4
 TAG_COMMENT = 't1_'
 TAG_SUBMISSION = 't3_'
@@ -569,7 +570,6 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
             print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
     threadDones[tdc] = True
     tdc = tdc + 1
-tdc = 0
 comments = dict()
 submissions = dict()
 def save_convo(path_rs, path_rc, path_out):
