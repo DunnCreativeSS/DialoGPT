@@ -598,11 +598,11 @@ def save_convo(path_rs, path_rc, path_out):
     for lala in wl_subreddits:
         threads.append(_thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))              ) 
 
-        
+    print(threads)
     done = False
     while done == False:
-        for t in threads:
-            if t.isAlive() == False:
+        for thread in threads:
+            if thread.isAlive() == False:
                 done = True
         time.sleep(30)
         if done == True:
