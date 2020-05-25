@@ -598,7 +598,7 @@ def save_convo(path_rs, path_rc, path_out):
     for lala in wl_subreddits:
         _thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))               
         threadDones[tdc] = False
-        tcd = tcd + 1
+        tdc = tdc + 1
     tdc = 0
         
                 
