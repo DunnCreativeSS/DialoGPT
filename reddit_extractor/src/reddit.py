@@ -412,7 +412,9 @@ def getthecomments(lala, submission, index):
         traceback.print_exc()
         traceback.print_exc()
     return(comments)    
-
+import thread
+import time
+                                                                                                                               
 from pypac import PACSession, get_pac
 pac = get_pac(url='http://localhost/proxies.PAC')
 session = PACSession(pac)
@@ -473,8 +475,103 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
             
+threadDones = []
+def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,):
+    jareprint(index)
+    index = index + 1
+    going = True
+    while going == True:
+        if index == len(wl_subreddits):
+            going = False
 
-  
+        if lala not in blocked:
+            
+            sleep(random.randint(0, 3))
+            subresult = dogetsubmissions(ts, lala, ts2, going, dict(), dict(), index)  
+            print(subresult)
+            going = subresult['going']
+            submissions = subresult['submissions']
+            comments = subresult['comments']
+        else:
+            going = False                  
+    sorted_id = sorted([(
+                    comments[cid]['link_id'],
+                    comments[cid]['parent_id'],
+                    cid
+                    ) for cid in comments])
+
+    
+    jareprint('total comments: %i'%n)
+
+    
+
+    skip_id = {}
+    jareprint('sorted: ' + str(sorted_id))
+    if args.leaves_only:
+        for _, pid, _ in sorted_id:
+            skip_id[pid] = 1
+    jareprint('sorted: ' + str(sorted_id))
+
+    for sid, pid, cid in sorted_id:
+        if args.keep_keys:
+            k = '\t'.join([sid, cid, 'keep'])
+            
+        
+        i += 1
+        if i%1e5 == 0:
+            print('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
+            
+
+        subreddit = ''
+        domain = ''
+        if sid in submissions.keys():
+            subreddit = submissions[sid]['permalink'].split('/')[2].lower()
+            domain = submissions[sid]['domain'].lower()
+        info = subreddit + '\t' + domain
+
+       
+        comment = comments[cid]
+
+
+        try:
+            txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
+            
+            if len(txts) < 3: # filter 3
+                print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
+                
+
+            for i in range(len(txts)):
+                txts[i] = norm_sentence(txts[i], False)
+                if args.leaves_only and args.clean:
+                    sc = '1.0'
+                    skip_target = False
+                    if args.discard_tgt_keys:
+                        tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
+                        if tgt_h in keys_rm.keys():
+                            skip_target = True
+                    if bl_words.extract_keywords(txts[i]) or skip_target:
+                        sc = '0.0'
+                    txts[i] = sc + ' ' + txts[i]
+
+            src = ' EOS '.join(txts[:-1])
+            tgt = txts[-1]
+
+            
+
+            header = ','.join([sid, pid, cid])
+            jareprint('header: ' + str(header))
+            lines.append(header + '\t' + src + '\t' + tgt)
+            sum_resp_len += len(tgt.split())
+            m += 1
+        except Exception:
+            threadDones[tdc]  = True
+            tdc = tdc + 1
+            print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
+    threadDones[tdc] = True
+    tdc = tdc + 1
+tdc = 0
+comments = dict()
+submissions = dict()
 def save_convo(path_rs, path_rc, path_out):
     jareprint('reading submissions...')
     path_out = fld_out + '/%s.tsv'%args.dump_name
@@ -486,117 +583,38 @@ def save_convo(path_rs, path_rc, path_out):
     ts2 = date_time_obj + datetime.timedelta(days=28)
     ts = int(ts) 
     ts2 = int(datetime.datetime.timestamp(ts2))
-    submissions = dict()
+    
     index = 0
    
     jareprint('reading comments...')
-    comments = dict()
+    
     index = 0
     i = 0
     m = 0
     n = 0
     lines = []
     sum_resp_len = 0
+    tdc = 0
     for lala in wl_subreddits:
-        jareprint(index)
-        index = index + 1
-        going = True
-        while going == True:
-            if index == len(wl_subreddits):
-                going = False
-
-            if lala not in blocked:
-                
-                sleep(random.randint(0, 3))
-                subresult = dogetsubmissions(ts, lala, ts2, going, dict(), dict(), index)  
-                print(subresult)
-                going = subresult['going']
-                submissions = subresult['submissions']
-                comments = subresult['comments']
-            else:
-                going = False                  
-        sorted_id = sorted([(
-                        comments[cid]['link_id'],
-                        comments[cid]['parent_id'],
-                        cid
-                        ) for cid in comments])
-
+        thread.start_new_thread(dolala, (lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))               
+        threadDones[tdc] = False
+        tcd = tcd + 1
+    tdc = 0
         
-        jareprint('total comments: %i'%n)
-
-        
-
-        skip_id = {}
-        jareprint('sorted: ' + str(sorted_id))
-        if args.leaves_only:
-            for _, pid, _ in sorted_id:
-                skip_id[pid] = 1
-        jareprint('sorted: ' + str(sorted_id))
-
-        for sid, pid, cid in sorted_id:
-            if args.keep_keys:
-                k = '\t'.join([sid, cid, 'keep'])
                 
-            
-            i += 1
-            if i%1e5 == 0:
-                print('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
-                
-
-            subreddit = ''
-            domain = ''
-            if sid in submissions.keys():
-                subreddit = submissions[sid]['permalink'].split('/')[2].lower()
-                domain = submissions[sid]['domain'].lower()
-            info = subreddit + '\t' + domain
-
-           
-            comment = comments[cid]
-
-
-            try:
-                txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
-                
-                if len(txts) < 3: # filter 3
-                    print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
-                    
-
-                for i in range(len(txts)):
-                    txts[i] = norm_sentence(txts[i], False)
-                    if args.leaves_only and args.clean:
-                        sc = '1.0'
-                        skip_target = False
-                        if args.discard_tgt_keys:
-                            tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
-                            if tgt_h in keys_rm.keys():
-                                skip_target = True
-                        if bl_words.extract_keywords(txts[i]) or skip_target:
-                            sc = '0.0'
-                        txts[i] = sc + ' ' + txts[i]
-
-                src = ' EOS '.join(txts[:-1])
-                tgt = txts[-1]
-
-                
-
-                header = ','.join([sid, pid, cid])
-                jareprint('header: ' + str(header))
-                lines.append(header + '\t' + src + '\t' + tgt)
-                sum_resp_len += len(tgt.split())
-                m += 1
-            except Exception:
-                print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-                        
-                    
-                
-
-                
-    n = len(comments)
-    avg_len = sum_resp_len/(m+1)
-    with open(path_out, 'a', encoding="utf-8") as f:
-        f.write('\n'.join(lines) + '\n')
-    jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
-    return m, n, avg_len
+    gogo = True
+    
+    for done in threadDones:
+        if done == False:
+            gogo = False
+    jareprint(threadDones)
+    if gogo == True:
+        n = len(comments)
+        avg_len = sum_resp_len/(m+1)
+        with open(path_out, 'a', encoding="utf-8") as f:
+            f.write('\n'.join(lines) + '\n')
+        jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
+        return m, n, avg_len
 
 
 def extract():
