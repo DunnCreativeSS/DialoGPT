@@ -7,7 +7,7 @@
 MIN_DEPTH=2
 
 # Maximum context length: 
-MAX_DEPTH=5
+MAX_DEPTH=5000
 
 # Minimum comment score:
 MIN_SCORE=1
@@ -51,7 +51,7 @@ SUBREDDITS_BLOCKLIST=--bl_subreddits lists/subreddits.blocklist.txt
 # Uncomment this to disable hash-based filtering:
 # (e.g., if you use more recent data, in which case
 # hash values would not match anything.)
-#HASH_FLAG=--ignore_keys=True
+HASH_FLAG=--ignore_keys=True
 
 ### Please do not modify the rest of this file: ###
 P=extract
