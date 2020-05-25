@@ -608,7 +608,7 @@ def save_convo(path_rs, path_rc, path_out):
                 done = True
         jareprint(threadDones)
         time.sleep(30)
-        if gogo == True:
+        if done == True:
             n = len(comments)
             avg_len = sum_resp_len/(m+1)
             with open(path_out, 'a', encoding="utf-8") as f:
