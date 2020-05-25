@@ -599,7 +599,8 @@ def save_convo(path_rs, path_rc, path_out):
     threads = []
     for lala in wl_subreddits:
         threads.append(Thread(target=dolala, args=(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))) 
-
+    for x in threads:
+        x.start() 
     for x in threads:
         x.join()        
 
