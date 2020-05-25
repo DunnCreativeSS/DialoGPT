@@ -475,7 +475,7 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
             
-threadDones = []
+threadDones = {}
 def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,):
     jareprint(index)
     index = index + 1
