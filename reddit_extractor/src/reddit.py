@@ -601,20 +601,20 @@ def save_convo(path_rs, path_rc, path_out):
         tdc = tdc + 1
     tdc = 0
         
-                
-    gogo = True
-    
-    for done in threadDones:
-        if done == False:
-            gogo = False
-    jareprint(threadDones)
-    if gogo == True:
-        n = len(comments)
-        avg_len = sum_resp_len/(m+1)
-        with open(path_out, 'a', encoding="utf-8") as f:
-            f.write('\n'.join(lines) + '\n')
-        jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
-        return m, n, avg_len
+    done = False
+    while done == False:
+        for done in threadDones:
+            if done == True:
+                done = True
+        jareprint(threadDones)
+        time.sleep(30)
+        if gogo == True:
+            n = len(comments)
+            avg_len = sum_resp_len/(m+1)
+            with open(path_out, 'a', encoding="utf-8") as f:
+                f.write('\n'.join(lines) + '\n')
+            jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
+            return m, n, avg_len
 
 
 def extract():
