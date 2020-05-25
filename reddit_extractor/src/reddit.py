@@ -571,6 +571,9 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
     tdc = tdc + 1
 comments = dict()
 submissions = dict()
+from concurrent.futures.thread import ThreadPoolExecutor
+import time
+
 from threading import Thread
 import subprocess
 def save_convo(path_rs, path_rc, path_out):
@@ -596,13 +599,12 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
-    threads = []
-    for lala in wl_subreddits:
-        threads.append(Thread(target=dolala, args=(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))) 
-    for x in threads:
-        x.start() 
-    for x in threads:
-        x.join()        
+    with ThreadPoolExecutor(max_workers=9) as executor:
+        ordinal = 1
+        for arg in args:
+            executor.submit(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,)
+            ordinal += 1
+    
 
     n = len(comments)
     avg_len = sum_resp_len/(m+1)
