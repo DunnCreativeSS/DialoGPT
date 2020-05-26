@@ -577,7 +577,7 @@ import queue
 from concurrent.futures.thread import ThreadPoolExecutor
 import time
 
-from threading import Thread
+import threading 
 import subprocess
 def save_convo(path_rs, path_rc, path_out):
     jareprint('reading submissions...')
