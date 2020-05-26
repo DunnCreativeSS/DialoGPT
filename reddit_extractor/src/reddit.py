@@ -567,11 +567,9 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
             sum_resp_len += len(tgt.split())
             m += 1
         except Exception:
-            threadDones[tdc]  = True
-            tdc = tdc + 1
+
             print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-    threadDones[tdc] = True
-    tdc = tdc + 1
+
 comments = dict()
 submissions = dict()
 import queue
