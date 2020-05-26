@@ -573,6 +573,7 @@ def dolala(lalas):
     tdc = tdc + 1
 comments = dict()
 submissions = dict()
+import queue
 from concurrent.futures.thread import ThreadPoolExecutor
 import time
 
