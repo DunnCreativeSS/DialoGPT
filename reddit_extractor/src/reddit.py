@@ -602,7 +602,7 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
-    q = Queue(maxsize = 9)
+    q = queue.Queue(maxsize = 9)
     for lala in wl_subreddits:
         
                
