@@ -569,7 +569,8 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
         except Exception:
 
             print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-
+    with open(path_out, 'a', encoding="utf-8") as f:
+        f.write('\n'.join(lines) + '\n')
 comments = dict()
 submissions = dict()
 import queue
