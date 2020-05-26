@@ -476,9 +476,8 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
             
-def dolala(lalas):
-    lala = lalas['lala']
-    index = lalas['index']
+def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out):
+
     jareprint(index)
     index = index + 1
     going = True
@@ -606,7 +605,7 @@ def save_convo(path_rs, path_rc, path_out):
     for lala in wl_subreddits:
         
                
-        t = threading.Thread(target=dolala, args=(lala,))
+        t = threading.Thread(target=dolala, args=(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))
         t.start()
     q.join()
     old = 0
