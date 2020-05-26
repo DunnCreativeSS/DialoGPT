@@ -599,8 +599,10 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
+    
     with ThreadPoolExecutor(max_workers=9) as executor:
-        executor.submit(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,)
+        for lala in wl_subreddits:
+            executor.submit(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,)
     
 
     n = len(comments)
