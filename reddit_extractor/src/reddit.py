@@ -601,11 +601,25 @@ def save_convo(path_rs, path_rc, path_out):
     lines = []
     sum_resp_len = 0
     tdc = 0
-    
-    with ThreadPoolExecutor(max_workers=9) as executor:
-        for lala in wl_subreddits:
-            executor.submit(dolala,{"lala": lala, "index": index})
-    
+    q = Queue(maxsize = 9)
+    for lala in wl_subreddits:
+        
+               
+        t = threading.Thread(target=dolala, args=(lala,))
+        t.start()
+    q.join()
+    old = 0
+    done = False
+    while done == False:
+        n = threading.active_count()  
+        if n != old:
+            old = n 
+        else:
+            done = True
+        print('t active count ' + str(n))
+        if n < 2:
+            done = True
+        sleep(1)
 
     n = len(comments)
     avg_len = sum_resp_len/(m+1)
