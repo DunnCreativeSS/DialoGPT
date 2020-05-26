@@ -478,7 +478,7 @@ def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
             
 def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out):
 
-    jareprint(index)
+    print(index)
     index = index + 1
     going = True
     while going == True:
@@ -491,7 +491,9 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
             subresult = dogetsubmissions(ts, lala, ts2, going, dict(), dict(), index)  
             print(subresult)
             going = subresult['going']
+            print('sub')
             submissions = subresult['submissions']
+            print('com')
             comments = subresult['comments']
         else:
             going = False                  
