@@ -29,12 +29,12 @@ $T/test.tsv.gz: $(TARGETS_TEST)
 
 $T/test/$A/%.tsv.gz: $T/test/$P/%/stat.tsv
 	mkdir -p $T/test/$A
-	python src/reddit.py $(*F) --task=conv --keep_keys=data/keys-test.gz --parallel=True --reddit_input $S --reddit_output $T/test --clean True --min_score $(MIN_SCORE) --min_depth $(MIN_DEPTH) --max_depth $(MAX_DEPTH) --use_title $(TITLE) --leaves_only 0 > $@.log 2>&1
+	python src/reddit.py $(*F) --task=conv --keep_keys=data/keys-test.gz --parallel=True --reddit_input $S --reddit_output $T/test --clean True --min_score $(MIN_SCORE) --min_depth $(MIN_DEPTH) --max_depth $(MAX_DEPTH) --use_title 1 --leaves_only 0 > $@.log 2>&1
 	gzip -f $T/test/$A/$(*F).tsv
 
 $T/train/$A/%.tsv.gz: $T/train/$P/%/stat.tsv
 	mkdir -p $T/train/$A
-	python src/reddit.py $(*F) --task=conv $(HASH_FLAG) --keep_keys=$K/$(*F).gz --discard_tgt_keys $K/$(*F)-o.gz --parallel=True $(WORDS_BLOCKLIST) $(SUBREDDITS_BLOCKLIST) --reddit_input $S --reddit_output $T/train --clean True --min_score $(MIN_SCORE) --min_depth $(MIN_DEPTH) --max_depth $(MAX_DEPTH) --use_title $(TITLE) --leaves_only $(LEAVES_ONLY) > $@.log 2>&1
+	python src/reddit.py $(*F) --task=conv $(HASH_FLAG) --keep_keys=$K/$(*F).gz --discard_tgt_keys $K/$(*F)-o.gz --parallel=True $(WORDS_BLOCKLIST) $(SUBREDDITS_BLOCKLIST) --reddit_input $S --reddit_output $T/train --clean True --min_score $(MIN_SCORE) --min_depth $(MIN_DEPTH) --max_depth $(MAX_DEPTH) --use_title 1 --leaves_only $(LEAVES_ONLY) > $@.log 2>&1
 	gzip -f $T/train/$A/$(*F).tsv
 
 $T/test/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
@@ -45,6 +45,7 @@ $T/test/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 
 $T/train/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 	mkdir -p $T/train/$P/$(*F)
+
 	python src/reddit.py $(*F) --keep_keys=$K/$(*F).gz --task=extract --reddit_input $S --reddit_output $T/train > $@.log 2>&1
 	gzip -f $T/train/$P/$(*F)/rc*.tsv
 	gzip -f $T/train/$P/$(*F)/rs*.tsv
@@ -53,21 +54,30 @@ $T/train/$P/%/stat.tsv: $S/RS_%.bz2 $S/RC_%.bz2
 
 $S/RS_%.bz2: lists/files/RS_v2_%.xz
 	touch $S/RS_v2_$(*F).xz 
-	xzcat $S/RS_v2_$(*F).xz | bzip2 > $@
+	touch  $S/RS_$(*F).bz2
+	touch $S/RC_$(*F).bz2
+	touch $S/RS_v2_$(*F).bz2 
+	#xzcat $S/RS_v2_$(*F).xz | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.xz
 	touch  $S/RS_$(*F).xz
-	xzcat $S/RS_$(*F).xz | bzip2 > $@
+	touch  $S/RS_$(*F).bz2
+	touch $S/RC_$(*F).bz2
+	touch $S/RS_v2_$(*F).bz2 
+	#xzcat $S/RS_$(*F).xz | bzip2 > $@
 $S/RC_%.bz2: lists/files/RC_%.xz
 	touch $S/RC_$(*F).xz 
-	xzcat $S/RC_$(*F).xz | bzip2 > $@
+	touch  $S/RS_$(*F).bz2
+	touch $S/RC_$(*F).bz2
+	touch $S/RS_v2_$(*F).bz2 
+	#xzcat $S/RC_$(*F).xz | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.zst
 	touch  $S/RS_$(*F).zst
-	zstdcat $S/RS_$(*F).zst | bzip2 > $@
+	#zstdcat $S/RS_$(*F).zst | bzip2 > $@
 $S/RC_%.bz2: lists/files/RC_%.zst 
 	touch $S/RC_$(*F).zst 
-	zstdcat $S/RC_$(*F).zst | bzip2 > $@
+	#zstdcat $S/RC_$(*F).zst | bzip2 > $@
 
 $S/RS_%.bz2: lists/files/RS_%.bz2
 	touch  $S/RS_$(*F).bz2 =

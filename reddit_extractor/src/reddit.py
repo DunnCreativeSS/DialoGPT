@@ -131,41 +131,14 @@ def extract_submissions(fld_bz2, fld_split, size=2e5):
     sid = []
     sids = []
     lines = []
-    with bz2.open(path_in, 'rt', encoding="utf-8") as f:
-        try:
-            for line in f:
-                n += 1
-                if n%1e4 == 0:
-                    jareprint('[%s] selected %.3fM from %.2fM submissions'%(
-                        args.dump_name, m/1e6, n/1e6))
-                try:
-                    submission = json.loads(line)
-                    if int(submission['num_comments']) < 2: # filter 1
-                        continue
-                    submission['title'] = norm_sentence(submission['title'], True)
-                    lines.append('\t'.join([str(submission[k]) for k in fields_subm]))
-                    m += 1
-                    sid.append(get_submission_id(submission))
-
-                except Exception:
-                    traceback.print_exc()
-                    continue
-
-                if len(sid) == size:
-                    jareprint('writing submissions_sub%i'%sub)
-                    sids.append(set(sid))
-                    with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
-                        f.write('\n'.join(lines))
-                    sid = []
-                    lines = []
-                    sub += 1
-        except: 
-            with open(path_in, 'rt', encoding="utf-8") as f:
+    try:
+        with bz2.open(path_in, 'rt', encoding="utf-8") as f:
+            try:
                 for line in f:
                     n += 1
-                    if n%1e4 == 0:
-                        jareprint('[%s] selected %.3fM from %.2fM submissions'%(
-                            args.dump_name, m/1e6, n/1e6))
+                    #if n%1e4 == 0:
+                        #jareprint('[%s] selected %.3fM from %.2fM submissions'%(
+                        #    #args.dump_name, m/1e6, n/1e6))
                     try:
                         submission = json.loads(line)
                         if int(submission['num_comments']) < 2: # filter 1
@@ -180,18 +153,48 @@ def extract_submissions(fld_bz2, fld_split, size=2e5):
                         continue
 
                     if len(sid) == size:
-                        jareprint('writing submissions_sub%i'%sub)
+                        #jareprint('writing submissions_sub%i'%sub)
                         sids.append(set(sid))
                         with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
                             f.write('\n'.join(lines))
                         sid = []
                         lines = []
                         sub += 1
-    jareprint('writing submissions_sub%i'%sub)
+            except: 
+                with open(path_in, 'rt', encoding="utf-8") as f:
+                    for line in f:
+                        n += 1
+                        #if n%1e4 == 0:
+                            #jareprint('[%s] selected %.3fM from %.2fM submissions'%(
+                                #args.dump_name, m/1e6, n/1e6))
+                        try:
+                            submission = json.loads(line)
+                            if int(submission['num_comments']) < 2: # filter 1
+                                continue
+                            submission['title'] = norm_sentence(submission['title'], True)
+                            lines.append('\t'.join([str(submission[k]) for k in fields_subm]))
+                            m += 1
+                            sid.append(get_submission_id(submission))
+
+                        except Exception:
+                            traceback.print_exc()
+                            continue
+
+                        if len(sid) == size:
+                            #jareprint('writing submissions_sub%i'%sub)
+                            sids.append(set(sid))
+                            with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
+                                f.write('\n'.join(lines))
+                            sid = []
+                            lines = []
+                            sub += 1
+    except:
+        abc=123
+    #jareprint('writing submissions_sub%i'%sub)
     sids.append(set(sid))
     with open(fld_split + '/rs_sub%i.tsv'%sub, 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines))
-    jareprint('extract_submissions done.\n')
+    #jareprint('extract_submissions done.\n')
     return sids, m, n
 
 
@@ -201,53 +204,55 @@ def extract_comments(fld_bz2, fld_split, sids):
     m = 0
     n_sub = len(sids)
     lines = [[] for i in range(n_sub)]
-    for sub in range(n_sub):
-        open(fld_split + '/rc_sub%i.tsv'%sub, 'w')
+    try:
+        for sub in range(n_sub):
+            open(fld_split + '/rc_sub%i.tsv'%sub, 'w')
 
-    with  open(path_in, 'rt', encoding="utf-8") as f:
-        for line in f:
-            n += 1
-            if n%1e4 == 0:
-                jareprint('[%s] selected %.3fM from %.2fM comments'%(
-                    args.dump_name, m/1e6, n/1e6))
+        with  open(path_in, 'rt', encoding="utf-8") as f:
+            for line in f:
+                n += 1
+                if n%1e4 == 0:
+                    #jareprint('[%s] selected %.3fM from %.2fM comments'%(
+                        #args.dump_name, m/1e6, n/1e6))
 
-                for sub in range(n_sub):
-                    jareprint('    sub %i: %i'%(sub, len(lines[sub])))
-                    if len(lines[sub]) > 0:
-                        with open(fld_split + '/rc_sub%i.tsv'%sub, 'a', encoding='utf-8') as f:
-                            f.write('\n'.join(lines[sub]) + '\n')
-                        lines[sub] = []
-            try:
-                comment = json.loads(line)
-                if args.keep_keys:
-                    k = '\t'.join([comment['link_id'], get_comment_id(comment), 'dep'])
-                    if k not in keys.keys():
+                    for sub in range(n_sub):
+                        #jareprint('    sub %i: %i'%(sub, len(lines[sub])))
+                        if len(lines[sub]) > 0:
+                            with open(fld_split + '/rc_sub%i.tsv'%sub, 'a', encoding='utf-8') as f:
+                                f.write('\n'.join(lines[sub]) + '\n')
+                            lines[sub] = []
+                try:
+                    comment = json.loads(line)
+                    if args.keep_keys:
+                        k = '\t'.join([comment['link_id'], get_comment_id(comment), 'dep'])
+                        if k not in keys.keys():
+                            continue
+                    if comment['body'] == '[deleted]': # filter 1
                         continue
-                if comment['body'] == '[deleted]': # filter 1
-                    continue
-                if '>' in comment['body'] or '&gt;' in comment['body']: # filter 3: '&gt;' means '>'
-                    continue
-                sid = comment['link_id']
-                for sub in range(n_sub):
-                    if sid in sids[sub]:
-                        comment['n_char'] = len(comment['body'])
-                        comment['body'] = norm_sentence(comment['body'], True)
-                        if len(comment['body'].split()) < 2: # filter 2
+                    if '>' in comment['body'] or '&gt;' in comment['body']: # filter 3: '&gt;' means '>'
+                        continue
+                    sid = comment['link_id']
+                    for sub in range(n_sub):
+                        if sid in sids[sub]:
+                            comment['n_char'] = len(comment['body'])
+                            comment['body'] = norm_sentence(comment['body'], True)
+                            if len(comment['body'].split()) < 2: # filter 2
+                                break
+                            lines[sub].append('\t'.join([str(comment[k]) for k in fields_comm]))
+                            m += 1
                             break
-                        lines[sub].append('\t'.join([str(comment[k]) for k in fields_comm]))
-                        m += 1
-                        break
 
-            except Exception:
-                traceback.print_exc()
-
-    jareprint('the rest...')
+                except Exception:
+                    traceback.print_exc()
+    except:
+        abc=123
+    #jareprint('the rest...')
     for sub in range(n_sub):
-        jareprint('    sub %i: %i'%(sub, len(lines[sub])))
+        #jareprint('    sub %i: %i'%(sub, len(lines[sub])))
         with open(fld_split + '/rc_sub%i.tsv'%sub, 'a', encoding='utf-8') as f:
             f.write('\n'.join(lines[sub]))
 
-    jareprint('extract_comments done.\n')
+    #jareprint('extract_comments done.\n')
     return m, n
 
 
@@ -255,10 +260,10 @@ def get_convo(sid, rootid, cid, submissions, comments, index, depth=args.max_dep
     if depth == 0:
         return []
     c = comments[cid]
-    if args.max_len_type == 'w' and len(c['body'].split()) > args.max_len: # len filter
-        return []
-    if args.max_len_type == 'c' and int(c['n_char']) > args.max_len:
-        return []
+    #if args.max_len_type == 'w' and len(c['body'].split()) > args.max_len: # len filter
+        #return []
+    #if args.max_len_type == 'c' and int(c['n_char']) > args.max_len:
+        #return []
 
     pid = c['parent_id']
     if args.use_title and pid.startswith(TAG_SUBMISSION):
@@ -276,13 +281,13 @@ def filter_instance(src, tgt, info):
     if args.bl_words and not args.leaves_only:
         bad_words = bl_words.extract_keywords(tgt)
         if bad_words:
-            print("skip\toffensive\t%s\t%s\tbad word(s): %s" % (info, tgt, bad_words), file=sys.stderr)
+            #print("skip\toffensive\t%s\t%s\tbad word(s): %s" % (info, tgt, bad_words), file=sys.stderr)
             return True
 
     # Remove empty targets:
     tgttoks = tgt.split()
     if len(tgttoks) <= 1: # 1 means there is only a weight, and 0 means there's a bug..
-        print("skip\temptytarget\t%s\t%s" % (info, tgt), file=sys.stderr)
+        #print("skip\temptytarget\t%s\t%s" % (info, tgt), file=sys.stderr)
         return True
 
     # Skip if word too long:
@@ -292,35 +297,35 @@ def filter_instance(src, tgt, info):
             toolong = True
             break
     if toolong:
-        print("skip\tlongword\t%s\t%s\tword too long" % (info, tgt), file=sys.stderr)
+        #print("skip\tlongword\t%s\t%s\tword too long" % (info, tgt), file=sys.stderr)
         return True
 
     srctoks = src.split()
     # Remove empty sources: (should probably uncomment, but left for reproducibility)
     #if len(srctoks) <= 1: # 1 means there is only a weight, and 0 means there's a bug..
-    #    jareprint("skip\temptysource\t%s\t%s" % (info, src), file=sys.stderr)
+    #    #jareprint("skip\temptysource\t%s\t%s" % (info, src), file=sys.stderr)
     #    return True
 
     # Remove too long turns:
     nsrctgt = len(srctoks) + len(tgttoks)
     if nsrctgt > 200:
-        print("skip\ttoolong\t%s\t%s\tsrc+tgt too long, src=[%s]" % (info, tgt, src), file=sys.stderr)
+        #print("skip\ttoolong\t%s\t%s\tsrc+tgt too long, src=[%s]" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip turns with URLs:
     srctgt = src + " " + tgt
     if "__url__" in srctgt:
-        print("skip\turl\t%s\t%s\turl in tgt, or src =[%s]" % (info, tgt, src), file=sys.stderr)
+        #print("skip\turl\t%s\t%s\turl in tgt, or src =[%s]" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip responses with meta data:
     if re.search("[\[\]\(\)]", srctgt) != None:
-        print("skip\ttags\t%s\t%s\ttag in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
+        #print("skip\ttags\t%s\t%s\ttag in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip yelling:
     if re.search("[A-Z]{5,}", srctgt) != None:
-        print("skip\tallcaps\t%s\t%s\tall caps in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
+        #print("skip\tallcaps\t%s\t%s\tall caps in tgt (or src: [%s])" % (info, tgt, src), file=sys.stderr)
         return True
 
     # Skip word repetitions:
@@ -330,7 +335,7 @@ def filter_instance(src, tgt, info):
             reps = True
             break
     if reps:
-        print("skip\trepetitions\t%s\t%s\ttoo many repetitions" % (info, tgt), file=sys.stderr)
+        #print("skip\trepetitions\t%s\t%s\ttoo many repetitions" % (info, tgt), file=sys.stderr)
         return True
 
     return False
@@ -340,180 +345,299 @@ import sys
 import requests
 from time import sleep
 import random
-def getthecomments(lala, submission, index):
+def getthecomments(tindex, lala, submission, index, e, session, status_code, submissions):
     comments = []
-    jareprint("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
+    if tindex >= 0:   
+        jareprint(str(tindex) + " https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
     try:    
-        resp0 = session.get("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'])
-        jareprint(resp0)
-        if '200' in str(resp0):
-            sleep(random.randint(0, 3))
+        if 'SOCKS' in str(e) or status_code != 200:
+            try:
+                with open('/var/www/html/proxies.PAC') as f:
+                    pac = PACFile(f.read())
+                session = PACSession(pac, socks_scheme='socks4')
+            except:
+                try:
+                    with open('/var/www/html/proxies_temp.PAC') as f:
+                        pac = PACFile(f.read())
+                    session = PACSession(pac, socks_scheme='socks4')
+                except:
+                    abc=123
+        resp0 = session.get("https://api.pushshift.io/reddit/submission/comment_ids/" + submission['id'], verify=True, timeout=20)
+        
+        status_code = resp0.status_code
+    
+        if tindex >= 0:   
+            jareprint(resp0)
+
+        if resp0.status_code == 200:
+            sleep(random.randint(1, 2) / 10)
             comments = []
             try:
                 resp0 = resp0.json()['data']
                 ids = ""
-                for line in resp0:
-                    ids = ids + "," + line                                                                                                                                   
-                print("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
-                try:
-                    resp = session.get("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
-                    jareprint(resp)
-                    if '200' in str(resp):
-                        sleep(random.randint(0, 3))
-                        
+                if len(resp0) > 0:
+                    for line in resp0:
+                        ids = ids + "," + line    
+                    if len(ids) >= 1:         
+                        if tindex >= 0:                                                                                                                      
+                            jareprint("https://api.pushshift.io/reddit/search/comment/?ids=" + ids)
                         try:
-                            resp = resp.json()['data']
-                            for line in resp:
-                            
-                                comment = line
-                                if index == 1:
-                                    jareprint(comment)
-                                comments.append(comment)
-                            return(comments)
-                        except Exception as e:
-                            jareprint(e)
-                            if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
-                                blocked.append(lala)
-                                going = False
+                            if 'SOCKS' in str(e) or status_code != 200:
+                                try:
+                                    with open('/var/www/html/proxies.PAC') as f:
+                                        pac = PACFile(f.read())
+                                    session = PACSession(pac, socks_scheme='socks4')
+                                except:
+                                    try:
+                                        with open('/var/www/html/proxies_temp.PAC') as f:
+                                            pac = PACFile(f.read())
+                                        session = PACSession(pac, socks_scheme='socks4')
+                                    except:
+                                        abc=123
+                            resp = session.get("https://api.pushshift.io/reddit/search/comment/?ids=" + ids, verify=True, timeout=20)
+                            #jareprint(resp)
+
+                            status_code = resp.status_code
+                            if tindex >= 0:
+                                jareprint(str(status_code))
+                            if resp.status_code == 200:
+                                sleep(random.randint(1, 2) / 10)
+                                
+                                try:
+                                    resp = resp.json()['data']
+                                    if len(resp) > 0:
+                                        for line in resp:
+                                        
+                                            comment = line
+                                            #if index == 1:
+                                                #jareprint(comment)
+                                            comments.append(comment)
+                                        return(comments)
+                                    else:
+                                        abc=123
+                                        #jareprint('empty resp')
+                                        return(comments)
+                                except Exception as e:
+                                    if 'SOCKS' not in str(e):
+                                        jareprint(e)
+                                    sleep(random.randint(1, 2) / 10)
+                                    return getthecomments(tindex, lala, submission, index, e, session, status_code, submissions)
+                                    traceback.print_exc()
                             else:
-                                time.sleep(random.randint(1,5))
-                                return getthecomments(lala, submission, index)
+                                sleep(random.randint(1, 2) / 10)
+                                return getthecomments(tindex, lala, submission, index, "", session, status_code, submissions)
+                        except Exception as e:
+                            if 'SOCKS' not in str(e):
+                                jareprint(e)
+                            sleep(random.randint(1, 2) / 10)
+                            return getthecomments(tindex, lala, submission, index, e, session, status_code, submissions)
                             traceback.print_exc()
-                    else:
-                        time.sleep(random.randint(1,5))
-                        return getthecomments(lala, submission, index)
-                except Exception as e:
-                    jareprint(e)
-                    if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
-                        blocked.append(lala)
-                        going = False
-                    else:
-                        time.sleep(random.randint(1,5))
-                        return getthecomments(lala, submission, index)
-                    traceback.print_exc()
-            except Exception as e:
-                jareprint(e)
-                if '429' not in str(resp) and '502' not in str(resp) and 'proxy' not in str(e) and 'timed out' not in str(e):
-                    blocked.append(lala)
-                    going = False
                 else:
-                    time.sleep(random.randint(1,5))
-                    return getthecomments(lala, submission, index)
+                    #jareprint('empty resp')
+                    return(comments)
+            except Exception as e:
+                if 'SOCKS' not in str(e):
+                    jareprint(e)
+                sleep(random.randint(1, 2) / 10)
+                return getthecomments(tindex, lala, submission, index, e, session, status_code, submissions)
                 traceback.print_exc()
         else:
-            time.sleep(random.randint(1,5))
-            return getthecomments(lala, submission, index)
+            sleep(random.randint(1, 2) / 10)
+            return getthecomments(tindex, lala, submission, index, "", session, status_code, submissions)
     except Exception as e:
-        if '429' not in str(e) and '502' not in str(e) and 'proxy' not in str(e) and 'timed out' not in str(e):
-            blocked.append(lala)
-            going = False
-        else:
-            time.sleep(random.randint(10,15))
-            return getthecomments(lala, submission, index)
+        if 'SOCKS' not in str(e):
+            jareprint(e)
+        sleep(random.randint(1, 2) / 10)
+        return getthecomments(tindex, lala, submission, index, e, session, status_code, submissions)
         traceback.print_exc()
         traceback.print_exc()
-    return(comments)    
+     
 import _thread
 import time
                                                                                                                                
-from pypac import PACSession, get_pac
-pac = get_pac(url='http://localhost/proxies.PAC')
-session = PACSession(pac)
+from pypac import PACSession
+from pypac.parser import PACFile
+import math
+
+with open('/var/www/html/proxies.PAC') as f:
+   pac = PACFile(f.read())
+
+
+try:
+    with open('/var/www/html/proxies.PAC') as f:
+        pac = PACFile(f.read())
+    session = PACSession(pac, socks_scheme='socks4')
+except:
+    try:
+        with open('/var/www/html/proxies_temp.PAC') as f:
+            pac = PACFile(f.read())
+        session = PACSession(pac, socks_scheme='socks4')
+    except:
+        abc=123
 blocked = []
-def dogetsubmissions(ts, lala, ts2, going, submissions, comments,   index):
-    jareprint("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1")
+def dogetsubmissions(tindex, ts, lala, ts2, going, submissions, comments,   index, e, session, status_code, numcomments, donecomments, submissionids):
+    if tindex >= 0:
+        jareprint(str(tindex) + " https://api.pushshift.io/reddit/search/submission/?sort=desc&sort_type=num_comments&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&num_comments=>"+str(numcomments))
                 
     try:
-        if ts != 0:
-            resp = session.get("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+"&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
-        else:
-            resp = session.get("https://api.pushshift.io/reddit/search/submission/?sort_type=score&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&fields=created_utc,id,score,num_comments,domain,permalink,title&score=>1&num_comments=>1", timeout=10)
+        if 'SOCKS' in str(e) or status_code != 200:
+            try:
+                with open('/var/www/html/proxies.PAC') as f:
+                    pac = PACFile(f.read())
+                session = PACSession(pac, socks_scheme='socks4')
+            except:
+                try:
+                    with open('/var/www/html/proxies_temp.PAC') as f:
+                        pac = PACFile(f.read())
+                    session = PACSession(pac, socks_scheme='socks4')
+                except:
+                    abc=123
         
-        jareprint(resp)
-        if '200' in str(resp): 
+        resp = session.get("https://api.pushshift.io/reddit/search/submission/?sort=desc&sort_type=num_comments&subreddit=" + lala + "&size=500&before=" + str(ts2) + "&after="+str(ts)+ "&fields=created_utc,id,score,num_comments,domain,permalink,title&num_comments=>"+str(numcomments), verify=True, timeout=20)
+        
+        #jareprint(resp.status_code)
+        status_code = resp.status_code
+        if tindex >= 0:
+            jareprint(status_code)
+        if resp.status_code == 200: 
             try:
                 resp = resp.json()['data']
-                if len(resp) == 0:
+                if donecomments == False and (len(resp) == 0 or len(resp) == 500):
+                    donecomments = True
+
+                if len(resp) < 500 and donecomments == False and len(resp) != 0:
+                    return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, math.ceil(numcomments * 1.35), donecomments, submissionids) 
+
+                if len(resp) == 0 and donecomments == True:
                     blocked.append(lala)
                     going = False
-                for line in resp:
-                    submission = line
-                    if index == 1:
-                        jareprint(submission)
-                    ts2o = ts2   
-                 
-                    ts2 = submission['created_utc']
-                    ts = 0
-                    if ts2 > ts2o or ts2 < ts:
-                        going = False
-                    submissions[get_submission_id(submission)] = submission
-                    sleep(random.randint(0, 3))
-                    toappend = getthecomments(lala, submission, index)
-                    for comment in toappend:
-                        comments[get_comment_id(comment)] = comment
+                    if int(numcomments) == 1:      
+                        return({'going': going, 'submissions': submissions, 'comments': comments})
+                    else:
+                        return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments-1, donecomments, submissionids)
+                
+
+                if len(resp) > 0:
+                    gogos = 0
+                    for line in resp:
+                        if line['id'] in submissionids:
+                            gogos = gogos + 1
+                    jareprint(str(tindex) + ' gogos: ' + str(gogos) + ' lenresp: ' + str(len(resp)) +' numcomments: ' + str(numcomments))
+
+                    if gogos < len(resp):
+
+                        for line in resp:
+                            submission = line
+                            if submission['id'] not in submissionids:
+                                submissionids.append(submission['id'])
+                                
+                                #if index == 1:
+                                    #jareprint(submission)
+                                ts2o = ts2   
+                             
+                                ts2 = submission['created_utc']
+                                #ts = 0
+                                if ts2 > ts2o or ts2 < ts:
+                                    going = False
+                                submissions[get_submission_id(submission)] = submission
+                                sleep(random.randint(1, 2) / 10)
+                                toappend = getthecomments(tindex,lala, submission, index, "", session, 429, comments)
+                                for comment in toappend:
+                                    comments[get_comment_id(comment)] = comment
+                            #else:
+                                #jareprint('gogo false')   
+                        if int(numcomments) == 1:      
+                            return({'going': going, 'submissions': submissions, 'comments': comments})
+                        else:
+                            return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments-1, donecomments, submissionids)
+                    else:    
+                        jareprint('gogos hit!')
+                        if int(numcomments) == 1:      
+                            return({'going': going, 'submissions': submissions, 'comments': comments})
+                        else:
+                            return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, int(numcomments/1.2), donecomments, submissionids)
+                    
+                else:
+                    #jareprint('empty resp')
+                    abc=123
+                    if int(numcomments) == 1:      
+                        return({'going': going, 'submissions': submissions, 'comments': comments})
+                    else:
+                        return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments-1, donecomments, submissionids)
                 
             except Exception as e:
-                if '429' not in str(e) and '502' not in str(e) and 'proxy' not in str(e) and 'timed out' not in str(e):
-                    blocked.append(lala)
-                    going = False
+                if 'SOCKS' not in str(e):
                     jareprint(e)
-                else:
-                    
-                    time.sleep(random.randint(1,5))
-                    return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+                sleep(random.randint(1, 2) / 10)
+                #print(1)
+                return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments, donecomments, submissionids)
                 traceback.print_exc()
         else:
-            time.sleep(random.randint(1,5))
-            return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+            #jareprint('repeat')
+            #print(2)
+            sleep(random.randint(1, 2) / 10)
+            return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, "", session, status_code, numcomments, donecomments, submissionids)
     except Exception as e:
-        if '429' not in str(e) and '502' not in str(e) and 'proxy' not in str(e) and 'timed out' not in str(e):
-            blocked.append(lala)
-            going = False
+        if 'SOCKS' not in str(e):
             jareprint(e)
-        else:
-            time.sleep(random.randint(10,15))
-            return dogetsubmissions(ts, lala, ts2, going, submissions, comments, index)
+        #print(3)
+        sleep(random.randint(1, 2) / 10)
+        return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments, donecomments, submissionids)
         traceback.print_exc()
     return({'going': going, 'submissions': submissions, 'comments': comments})
+    #return dogetsubmissions(tindex,ts, lala, ts2, going, submissions, comments, index, e, session, status_code, numcomments-1, donecomments, submissionids)
             
-def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out):
-
-    print(index)
-    index = index + 1
-    going = True
-    while going == True:
-        if index == len(wl_subreddits):
-            going = False
-
-        if lala not in blocked:
-            
-            sleep(random.randint(0, 3))
-            subresult = dogetsubmissions(ts, lala, ts2, going, dict(), dict(), index)  
-            print(subresult)
-            going = subresult['going']
-            print('sub')
-            submissions = subresult['submissions']
-            print('com')
-            comments = subresult['comments']
-        else:
-            going = False                  
-    sorted_id = sorted([(
-                    comments[cid]['link_id'],
-                    comments[cid]['parent_id'],
-                    cid
-                    ) for cid in comments])
+def dolala(tindex,lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out):
 
     
-    jareprint('total comments: %i'%n)
+    index = index + 1
+    going = True
+    if index == len(wl_subreddits):
+        going = False
+
+    if lala not in blocked:
+        
+        sleep(random.randint(0, 3))
+        try:
+            with open('/var/www/html/proxies.PAC') as f:
+                pac = PACFile(f.read())
+            session = PACSession(pac, socks_scheme='socks4')
+        except:
+            try:
+                with open('/var/www/html/proxies_temp.PAC') as f:
+                    pac = PACFile(f.read())
+                session = PACSession(pac, socks_scheme='socks4')
+            except:
+                abc=123
+        subresult = dogetsubmissions(tindex,ts, lala, ts2, going, dict(), dict(), index, "", session, 429, 1, False, [])  
+        #jareprint(subresult)
+        going = subresult['going']
+        print('sub')
+        submissions = subresult['submissions']
+        jareprint(str(len(submissions)))
+        print('com')
+
+        comments = subresult['comments']
+        jareprint(str(len(comments)))
+    else:
+        going = False                  
+    sorted_id = sorted([(
+                comments[cid]['link_id'],
+                comments[cid]['parent_id'],
+                cid
+                ) for cid in comments])
+
+
+    jareprint('total comments: %i'%len(comments))
 
     
 
     skip_id = {}
-    jareprint('sorted: ' + str(sorted_id))
+    #jareprint('sorted: ' + str(sorted_id))
     if args.leaves_only:
         for _, pid, _ in sorted_id:
             skip_id[pid] = 1
-    jareprint('sorted: ' + str(sorted_id))
+    #jareprint('sorted: ' + str(sorted_id))
 
     for sid, pid, cid in sorted_id:
         if args.keep_keys:
@@ -521,8 +645,8 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
             
         
         i += 1
-        if i%1e5 == 0:
-            print('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
+        #if i%1e5 == 0:
+            #print('selected hooziewhatsie %.2fM from %.1f/%.1fM comments'%(m/1e6, i/1e6, n/1e6), file=sys.stderr)
             
 
         subreddit = ''
@@ -536,27 +660,27 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
         comment = comments[cid]
 
 
-        try:
-            txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
+        txts = get_convo(sid, cid, cid, submissions, comments, index) # filter 2
+        
+        #if len(txts) < 3: # filter 3
+            #print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
             
-            if len(txts) < 3: # filter 3
-                print("skip\tmin_depth\t%s\t%s\tdepth %d < %d: %s" % (info, comment['body'], len(txts), args.min_depth, "|".join(txts)), file=sys.stderr)
-                
 
-            for i in range(len(txts)):
-                txts[i] = norm_sentence(txts[i], False)
-                if args.leaves_only and args.clean:
-                    sc = '1.0'
-                    skip_target = False
-                    if args.discard_tgt_keys:
-                        tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
-                        if tgt_h in keys_rm.keys():
-                            skip_target = True
-                    if bl_words.extract_keywords(txts[i]) or skip_target:
-                        sc = '0.0'
-                    txts[i] = sc + ' ' + txts[i]
+        for i in range(len(txts)):
+            txts[i] = norm_sentence(txts[i], False)
+            if args.leaves_only and args.clean:
+                sc = '1.0'
+                skip_target = False
+                if args.discard_tgt_keys:
+                    tgt_h = hashlib.sha224(txts[i].encode("utf-8")).hexdigest()
+                    if tgt_h in keys_rm.keys():
+                        skip_target = True
+                if bl_words.extract_keywords(txts[i]) or skip_target:
+                    sc = '0.0'
+                txts[i] = sc + ' ' + txts[i]
 
-            src = ' EOS '.join(txts[:-1])
+        src = ' EOS '.join(txts[:-1])
+        if len(txts) > 0:
             tgt = txts[-1]
 
             
@@ -566,11 +690,8 @@ def dolala(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_su
             lines.append(header + '\t' + src + '\t' + tgt)
             sum_resp_len += len(tgt.split())
             m += 1
-        except Exception:
-
-            print("skip\texception\t%s\t%s\texception" % (info, comment['body']), file=sys.stderr)
-    with open(path_out, 'a', encoding="utf-8") as f:
-        f.write('\n'.join(lines) + '\n')
+            with open(path_out, 'a', encoding="utf-8") as f:
+                f.write(lines[-1]+ '\n')
 comments = dict()
 submissions = dict()
 import queue
@@ -579,10 +700,11 @@ import time
 
 import threading 
 import subprocess
+import sys
 def save_convo(path_rs, path_rc, path_out):
-    jareprint('reading submissions...')
+    #jareprint('reading submissions...')
     path_out = fld_out + '/%s.tsv'%args.dump_name
-    wl_subreddits = ['nsfw', 'porn', 'eroticwriting',  'eroticauthors', 'erotica','gonewildstories', 'sluttyconfessions']
+    wl_subreddits = ['nsfw', 'porn', 'eroticwriting',  'eroticauthors', 'erotica','gonewildstories', 'sluttyconfessions', 'dirtyr4r', 'dirtyfriendfinder', 'dirtypenpals', 'roleplaykik', 'dirtykikroleplay', 'eroticpenpals', 'kikroleplay']
 
     date_time_str = args.dump_name
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m')
@@ -593,7 +715,7 @@ def save_convo(path_rs, path_rc, path_out):
     
     index = 0
    
-    jareprint('reading comments...')
+    #jareprint('reading comments...')
     
     index = 0
     i = 0
@@ -603,30 +725,31 @@ def save_convo(path_rs, path_rc, path_out):
     sum_resp_len = 0
     tdc = 0
     q = queue.Queue(maxsize = 9)
+    tindex = -1
     for lala in wl_subreddits:
-        
+        tindex = tindex + 1
                
-        t = threading.Thread(target=dolala, args=(lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))
+        t = threading.Thread(target=dolala, args=(tindex,lala,index,sum_resp_len,lines,n,m,i,comments,submissions,ts,ts2,wl_subreddits,path_out,))
         t.start()
-    q.join()
+    #q.join()
     old = 0
     done = False
     while done == False:
         n = threading.active_count()  
-        if n != old:
-            old = n 
-        else:
-            done = True
-        print('t active count ' + str(n))
-        if n < 2:
+        
+        jareprint('t active count ' + str(n))
+        if n <= 2:
             done = True
         sleep(1)
 
     n = len(comments)
     avg_len = sum_resp_len/(m+1)
+    sys.exit(0)
+    
     with open(path_out, 'a', encoding="utf-8") as f:
-        f.write('\n'.join(lines) + '\n')
-    jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
+        f.write('\n\n')
+
+    #jareprint('finally selected %i/%i, avg len = %.2f'%(m, n, avg_len))
     return m, n, avg_len
 
 
@@ -641,7 +764,7 @@ def extract():
 def build_conv(fld_out):
     makedirs(fld_out)
     path_out = fld_out + '/%s.tsv'%args.dump_name
-    jareprint(path_out)
+    #jareprint(path_out)
 
     if args.parallel:
         fs = open(fld_out + '/' + args.dump_name + '.stat.tsv', 'w')
@@ -654,10 +777,10 @@ def build_conv(fld_out):
     while True:
         path_rs = fld_split + '/rs_sub%i.tsv.gz'%sub
         if not os.path.exists(path_rs):
-            if sub == 0:
-                jareprint('no such file: '+path_rs)
+            #if sub == 0:
+                #jareprint('no such file: '+path_rs)
             break
-        jareprint('-'*10 + ' sub%i '%sub + '-'*10)
+        #jareprint('-'*10 + ' sub%i '%sub + '-'*10)
         path_rc = path_rs.replace('/rs_', '/rc_')
         m, n, avg_len = save_convo(path_rs, path_rc, path_out)
         fs.write('\t'.join([args.dump_name, str(sub), str(m), str(n), '%.2f'%avg_len]) + '\n')

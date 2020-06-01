@@ -1,4 +1,4 @@
-var ProxyLists = require('proxy-lists');
+	var ProxyLists = require('proxy-lists');
 var rp = require('request-promise');
 var fs = require('fs')
 var SocksProxyAgent = require('socks-proxy-agent');
@@ -8,18 +8,34 @@ var HttpsProxyAgent = require('https-proxy-agent');
 var finalProxies = []
 var initialProxies = []
 var tempProxies = []
+
+setInterval( function() {
+	console.log('done')
+	tempProxies = initialProxies
+	
+		console.log(tempProxies.length)	
+
+	for (var p in tempProxies){
+		var proxy = tempProxies[p]
+		var agent = new SocksProxyAgent(proxy);
+
+		var options = {
+			timeout: 3000,
+		    uri: 'https://api.ipify.org?format=json',
+		    headers: {
+		        'User-Agent': 'Request-Promise'
+		    },
+			agent:agent
+		}
+	testProxy(options, tempProxies.length, proxy, 0)
+	}
+}, 15000);
+
 function getProxies(){
 
 var options = {
-    countries: ['us', 'ca'],
-    protocols: ['http', 'https'],
-    sourcesWhiteList: ['checkerproxy', 'proxyscrape-com', 'xroxy',
-  'freeproxylist',
-  'proxy-list-org',
-  'proxydb',
-  'proxyhttp-net',
-  'hidemyname'
-] 
+    protocols: ['socks4']
+    
 
 };
 
@@ -41,51 +57,42 @@ for (var p in ps){
 gettingProxies.on('error', function(error) {
     // Some error has occurred.
  //   console.error(error);
+
+});
+
+gettingProxies.on('end', function(error) {
+    // Some error has occurred.
+ //   console.error(error);
+ 
+    setTimeout(function(){
+    	initialProxies = []
+    	getProxies()
+    }, 1 * 1000)
 });
  
-setTimeout( function() {
-	console.log('done')
-	tempProxies = initialProxies
-	initialProxies = []
-		console.log(tempProxies.length)	
 
-	for (var p in tempProxies){
-		var proxy = tempProxies[p]
-		var agent = new HttpsProxyAgent(proxy);
-
-		var options = {
-			timeout: 3000,
-		    uri: 'https://api.ipify.org?format=json',
-		    headers: {
-		        'User-Agent': 'Request-Promise'
-		    },
-			agent:agent
-		}
-	testProxy(options, tempProxies.length, proxy, 0)
-	}
-    setTimeout(function(){
-    	getProxies()
-    }, tempProxies.length * 3000)
-}, 30000);
 
 }
 function testProxy(options, l, proxy, count){
 setTimeout(async function(){
-	try {
-	    var response = await rp(options)
+	try {	    
+		var response = await rp(options)
+	    //console.log('')
+	    //console.log(proxy.split('://')[1].split(':')[0])
+	    //console.log(JSON.parse(response).ip)
 	    if (JSON.parse(response).ip == proxy.split('://')[1].split(':')[0]){
 		
 		count++
 		console.log(count)
-		if (count <= 3){
+		if (count <= 5){
 		setTimeout(function(){
 		return testProxy(options, l, proxy, count)
 	}, 500)
 	} 
 	
-	else if (count > 3){
+	else if (count > 5){
 		finalProxies.push(proxy)
-		console.log(finalProxies.length)
+		console.log(finalProxies)
 
 		return testProxy(options, l, proxy, count)
 }else {
@@ -116,6 +123,7 @@ function FindProxyForURL(url, host)
 
 */
 var goagain = true
+
 setInterval(function(){
 	if (goagain == true){
 		goagain = false
@@ -126,22 +134,38 @@ setInterval(function(){
 		}
 		text += '"\nfunction FindProxyForURL(url, host){'
 
-		text += '\nvar hostsArray = hosts.split(" ").split("://")[1];'
-		text+= '\nvar randomIndex = Math.floor((Math.random() * hostsArray.length));'
+	//	text += '\nvar hostsArray = hosts.split(" ").split("://")[1];'
+	//	text+= '\nvar randomIndex = Math.floor((Math.random() * hostsArray.length));'
 if (finalProxies.length>0){		
 host = finalProxies[Math.floor((Math.random() * finalProxies.length))]
 		if (host.split('://')[0] == 'http'){
 			proto = 'PROXY'
 		}
-		else if (host.split('://')[0] == 'http'){
+		else if (host.split('://')[0] == 'https'){
                         proto = 'HTTPS'
+                }
+                else if (host.split('://')[0].indexOf('socks') != -1){
+                        proto = 'SOCKS'
                 }
                 host = host.split('://')[1]
 text+= '\nreturn "' + proto + ' ' + host + ';" }' // DIRECT makes the browser use no proxy if the chosen proxy doesn't work
 
 
-		fs.writeFileSync('/var/www/html/proxies.PAC',text,{encoding:'utf8',flag:'w'})
+		fs.writeFileSync('/var/www/html/proxies_temp.PAC',text,{encoding:'utf8',flag:'w'})
+		copyFile()
 }		
 goagain = true
 	}
-   	}, 1000)
+   	}, 50)
+
+
+function copyFile(){
+try {
+		fs.copyFileSync('/var/www/html/proxies_temp.PAC', '/var/www/html/proxies.PAC')
+	}
+	catch (err){
+		setTimeout(async function(){
+		copyFile()
+	}, 50)
+	}
+}

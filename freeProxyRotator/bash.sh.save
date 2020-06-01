@@ -1,0 +1,8 @@
+#/!bin/bash
+while :
+while true
+> do
+>    echo "hello"
+>    sleep 2
+> done
+hz
