@@ -154,6 +154,7 @@ def main(args):
                    f'{".".join(attrs)}.db/db')
     else:
         db_path = f'{args.corpus[:-4]}.{args.max_seq_len}len.db/db'
+    print(db_path)
     if exists(dirname(db_path)):
         raise ValueError('Found existing DB, please backup')
     else:

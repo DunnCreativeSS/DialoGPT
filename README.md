@@ -16,6 +16,17 @@ ArXiv paper: [https://arxiv.org/abs/1911.00536](https://arxiv.org/abs/1911.00536
 
 
 ## News ##
+
+***(Update 09/15/2020) A set of large-scale [dialog ranking models](https://github.com/golsun/DialogRPT) has been released!***
+
+DialoGPT generation is improved by integrating with our latest dialog ranking models, [DialogRPT](https://github.com/golsun/DialogRPT)
+
+***(Update 07/08/2020) The 6K multi-ref test set has been released!***
+
+To generate the data, pleaser run `demo.py` and set the data option to 'full', the generated 6k multi-ref test set will be located at
+
+`./data/test.refs.txt`
+
 ***(Update 03/10/2020) Model cards available in Huggingface Transformers!***
 
 Please check out our model cards in huggingface Transformers repository. With several lines of code it should be pretty straighforward to play with the DialoGPT interactively. 
@@ -36,7 +47,7 @@ Please check out our model cards in huggingface Transformers repository. With se
 - [https://github.com/andreamad8/DialoGPT2-Interact](https://github.com/andreamad8/DialoGPT2-Interact) An interactive script featuring multiturn chatbot by andreamad8,[ref](https://github.com/microsoft/DialoGPT/issues/3#issuecomment-551450016)
 - [https://github.com/LHolten/DialoGTP-MMI-decoder](https://github.com/LHolten/DialoGTP-MMI-decoder) An MMI implementation by LHolten,[ref](https://github.com/microsoft/DialoGPT/issues/3#issuecomment-558318401)
 - [https://colab.research.google.com/drive/1-_KjlAV3J1IVDw_9KogjKDCzgFY7Jp7E](https://colab.research.google.com/drive/1-_KjlAV3J1IVDw_9KogjKDCzgFY7Jp7E) A colab interactive notebook by illuminascent@Reddit,[ref](https://www.reddit.com/r/MachineLearning/comments/dt5woy/p_dialogpt_state_of_the_art_conversational_model/?st=k530k3oo&sh=f6cd20fd)
-
+- [https://colab.research.google.com/drive/15wa925dj7jvdvrz8_z3vU7btqAFQLVlG](https://colab.research.google.com/drive/15wa925dj7jvdvrz8_z3vU7btqAFQLVlG) A great tutorial of how to finetune DialoGPT to build a customized bot built by [Rostyslav Neskorozhenyi](https://www.linkedin.com/in/slanj/). [ref](https://towardsdatascience.com/make-your-own-rick-sanchez-bot-with-transformers-and-dialogpt-fine-tuning-f85e6d1f4e30) 
 
 <!--**This github repository will be updated soon. Please stay tuned.**-->
 <!--## Minimal Computational Configurations-->
@@ -73,7 +84,7 @@ Please use the below commandlines to clone, install the requirements and load th
 
 
 ```bash
-sudo apt-get install -y make wget gzip bzip2 xz-utils zstd
+sudo apt-get install -y make wget gzip bzip2 xz-utils zstd sed
 ```
 
 ```bash
@@ -141,6 +152,10 @@ python demo.py --data full
 ```
 
 The small Reddit data is around 140MB and the full Reddit data is more than 27GB. You can prepare a cup of coffee when processing with the full Reddit data because **it takes a long time**!
+
+To generate the 6k multi-ref test set data, pleaser run `demo.py` and set the data option to 'full', the generation will be located at
+
+`./data/test.refs.txt`
 
 #### Pretrained model
 
@@ -213,12 +228,14 @@ We release 6 fine-tuned models which can be further fine-tuned on low-resource  
 | DialoGPT 345M model| [\[link\]](https://convaisharables.blob.core.windows.net/lsp/multiref/medium_ft.pkl) [\[huggingface model card\]](https://huggingface.co/microsoft/DialoGPT-medium) | [\[link\]](https://convaisharables.blob.core.windows.net/lsp/multiref/medium_fs.pkl) | 
 | DialoGPT 117M model| [\[link\]](https://convaisharables.blob.core.windows.net/lsp/multiref/small_ft.pkl) [\[huggingface model card\]](https://huggingface.co/microsoft/DialoGPT-small)| [\[link\]](https://convaisharables.blob.core.windows.net/lsp/multiref/small_fs.pkl) | 
 | DialoGPT 345M model (reverse, for MMI)| [link](https://convaisharables.blob.core.windows.net/lsp/multiref/small_reverse.pkl) | -| 
-
+| [DialogRPT](https://github.com/golsun/DialogRPT) (**new** ranking models) | [link](https://github.com/golsun/DialogRPT) | -| 
 
 
 The model files can be loaded exactly as the GPT-2 model checkpoints from Huggingface's [Transformers](https://github.com/huggingface/transformers). You can find the corresponding configuration files (`merges.txt`, `config.json`, `vocab.json`) in DialoGPT's repo in `./configs/*`.
 
 The reverse model is predicting the source from the target. This model is used  for MMI reranking. 
+
+The [DialogRPT](https://github.com/golsun/DialogRPT) models our recently proposed ranking models used to predict the human feedback (upvotes, replies) of the responses. These models can be used to improve the DialoGPT generation quality (see our [EMNLP paper](https://arxiv.org/abs/2009.06978) for details).
 
 ## Retraining full models
 
@@ -307,7 +324,7 @@ The evaluation results will be generated in the folder `./dstc/eval/`
 
 ### Automatic evaluation
 
-We test on 6K multi-ref dataset from Reddit (this test data will be release soon). The results are summarized in below
+We test on 6K multi-ref dataset from Reddit. The results are summarized in below
 
 | Experiment         | NIST2 | NIST4 | BLEU2  | BLEU4 | METEOR | ENT-4 | DIST-1 | DIST-2 | Avg. Len |
 |--------------------|-------|-------|--------|-------|--------|----------|------------|------------|---------|
@@ -573,13 +590,11 @@ This repository aims to facilitate research in large-scale pretraining for conve
 ## Citation
 If you use this code in your research, you can cite our [arxiv paper](https://arxiv.org/abs/1911.00536):
 ```bash
-@misc{zhang2019dialogpt,
+@inproceedings{zhang2019dialogpt,
     title={DialoGPT: Large-Scale Generative Pre-training for Conversational Response Generation},
     author={Yizhe Zhang and Siqi Sun and Michel Galley and Yen-Chun Chen and Chris Brockett and Xiang Gao and Jianfeng Gao and Jingjing Liu and Bill Dolan},
-    year={2019},
-    eprint={1911.00536},
-    archivePrefix={arXiv},
-    primaryClass={cs.CL}
+    year={2020},
+    booktitle={ACL, system demonstration}
 }
 ```
 
